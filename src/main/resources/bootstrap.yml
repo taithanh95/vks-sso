@@ -1,0 +1,131 @@
+server:
+  port: 6006
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:6761/eureka/
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+    status-page-url: http://${eureka.instance.hostname}:${server.port}/swagger-ui.html
+management:
+  security:
+    enabled: false
+security:
+  basic:
+    enabled: false
+logging:
+  level:
+    org.zalando.logbook: TRACE
+  pattern:
+    console: "[%d{dd/MM/yyyy HH:mm:ss,SSS}] %m%n"
+    file: "[%d{dd/MM/yyyy HH:mm:ss,SSS}] %m%n"
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - OPTIONS
+  session:
+    store-type: none
+  profiles:
+    active: default
+  application:
+    name: vks-sso
+  datasource:
+    url: "jdbc:oracle:thin:@45.122.253.178:2151:cdb241"
+#    url: "jdbc:oracle:thin:@192.168.1.241:1521:cdb241"
+#    url: "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(LOAD_BALANCE=on)(FAILOVER=on)(ADDRESS=(PROTOCOL=TCP)(HOST=10.47.104.247)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.47.104.248)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=vksdb)))"
+    username: spp_sso
+    password: Ab123456
+    driver-class-name: oracle.jdbc.OracleDriver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 4
+      max-lifetime: 1800000
+      maximum-pool-size: 20
+      connection-timeout: 60000
+      pool-name: ${spring.application.name}
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: "org.hibernate.dialect.Oracle10gDialect"
+        format_sql: true
+  main:
+    allow-bean-definition-overriding: true
+
+  #Redis configurations
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    password:
+    jedis:
+      pool:
+        max-idle: 8
+        max-wait: -1
+        min-idle: 0
+        timeout: 0
+  mvc:
+    dispatch-options-request: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: 234271493536-4qspi8a1udhep3r5h6ev0pnrnrc3utes.apps.googleusercontent.com
+            clientSecret: 2J3kuxAwCe_TUCpyUmX54Cjy
+            redirectUriTemplate: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - email
+              - profile
+          facebook:
+            clientId: 2008777312546230
+            clientSecret: 016a73fbfd7ab7cc19d68df3d24e430d
+            redirectUriTemplate: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - email
+              - public_profile
+          github:
+            clientId: d3e47fc2ddd966fa4352
+            clientSecret: 3bc0f6b8332f93076354c2a5bada2f5a05aea60d
+            redirectUriTemplate: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - user:email
+              - read:user
+        provider:
+          facebook:
+            authorizationUri: https://www.facebook.com/v3.0/dialog/oauth
+            tokenUri: https://graph.facebook.com/v3.0/oauth/access_token
+            userInfoUri: https://graph.facebook.com/v3.0/me?fields=id,first_name,middle_name,last_name,name,email,verified,is_verified,picture.width(250).height(250)
+app:
+  auth:
+    tokenSecret: 926D96C90030DD58429D2751AC1BDBBC
+    tokenExpirationMsec: 86400000 # = 1 ngay
+  oauth2:
+    # After successfully authenticating with the OAuth2 Provider,
+    # we'll be generating an auth token for the user and sending the token to the
+    # redirectUri mentioned by the client in the /oauth2/authorize request.
+    # We're not using cookies because they won't work well in mobile clients.
+    authorizedRedirectUris: http://localhost:3000/oauth2/redirect
+#      - http://localhost:3000/oauth2/redirect
+#      - myandroidapp://oauth2/redirect
+#      - myiosapp://oauth2/redirect
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        decode404: false
+        loggerLevel: full
+        readTimeout: 30000
